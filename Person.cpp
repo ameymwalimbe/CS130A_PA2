@@ -1,8 +1,12 @@
+#ifndef PERSON_H
+#define PERSON_H
+
 #include <string>
 #include <sstream>
 #include "Person.hpp"
 
-Person::Person(string line) {
+Person::Person(string line, int i) {
+    number = i;
     stringstream ss (line);
     float f;
     while(ss>>f){
@@ -32,3 +36,5 @@ void Person::printVec(){
     }
     cout << endl;
 }
+
+#endif

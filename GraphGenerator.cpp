@@ -5,7 +5,7 @@
 
 GraphGenerator::GraphGenerator(char* edgesFileName, char* hobbiesFileName){
     createAdjList(hobbiesFileName);
-    // addEdge(edgesFileName);
+    addEdge(edgesFileName);
 }
 
 void GraphGenerator::createAdjList(char* hobbiesFileName) {
@@ -17,7 +17,7 @@ void GraphGenerator::createAdjList(char* hobbiesFileName) {
     if (hobbyFile.is_open()){
         while (!hobbyFile.eof()) {
             getline(hobbyFile, line);
-            Person myPerson = Person(line);
+            Person myPerson = Person(line, i);
             pair <Person, float> myPair (myPerson, 1.0);
             adjList.push_back(vector< pair <Person, float> >());
             adjList[i].push_back(myPair); //insert Person, 1.0 into the first index
@@ -40,7 +40,6 @@ void GraphGenerator::addEdge(char* edgesFileName){
         while (!edgesFile.eof()) {
             vector<float> varList;
             getline(edgesFile, line);
-
             stringstream ss (line);
             float f;
             while(ss>>f){
@@ -50,6 +49,7 @@ void GraphGenerator::addEdge(char* edgesFileName){
                 varList.push_back(f);
             } 
             int v1 = varList.at(0);
+            cout << v1 << endl;
             int v2 = varList.at(1);
             float weight = varList.at(2);
 
@@ -57,8 +57,7 @@ void GraphGenerator::addEdge(char* edgesFileName){
             pair <Person, float> myPair2 (adjList[v2-1][0].first, weight);
 
             adjList[v1-1].push_back(myPair2);
-            adjList[v2-1].push_back(myPair1);
-              
+            adjList[v2-1].push_back(myPair1);    
         }   
     }
 

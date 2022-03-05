@@ -5,9 +5,10 @@ using namespace std;
 class Person{
     public:
         Person();
-        Person(string line); //constructs a person vertex and fills in their hobby vector
+        Person(string line, int i); //constructs a person vertex and fills in their hobby vector
         void printVec();
-    private:   
+    //private:   
         vector<float> hobbies;
+        int number;
         
 };

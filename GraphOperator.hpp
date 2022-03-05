@@ -1,15 +1,18 @@
+#ifndef GRAPHOPERATOR_H
+#define GRAPHOPERATOR_H
+
 #include <vector>
-#include "GraphGenerator.hpp"
+#include "GraphGenerator.cpp"
 
 using namespace std;
-
 class GraphOperator{
     public:
         GraphOperator();
-        GraphOperator(GraphGenerator& g);
+        GraphOperator(GraphGenerator& g); 
         pair<int, Person> FindAverageDegree(); //Find average degree and the vertex with the highest degree
         Person FindHighestDegree(); //Find vertex(person) of highest degree(most connections)
         int FindConnectedNumber(); //Find number of connected components
+        void DFS(int personIndex, vector<bool> visited); // helper function for FindConnectedNumber()
         vector<vector<int> > FindConnectedParameters(); //Find Diameter, Radius, Centers of each component
         double FindTrianglesRatio(); // ratio between open and closed triangles
         Person FindClosestNode(Person x, int t, int h); // find closest node from x with an interest level of at least t in hobby h
@@ -17,6 +20,8 @@ class GraphOperator{
         pair<Person, Person> FindDistanceRatio(); // find pair of nodes whose ratio between hobby distance and graph distance is smallest
 
     private:
-        GraphGenerator *graph;
+        GraphGenerator graph;
 
 };
+
+#endif

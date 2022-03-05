@@ -1,3 +1,6 @@
+#ifndef GRAPHGENERATOR_H
+#define GRAPHGENERATOR_H
+
 #include <vector>
 #include "Person.cpp"
 using namespace std;
@@ -8,9 +11,9 @@ class GraphGenerator {
         GraphGenerator(char* edgesFileName, char* hobbiesFileName);
         void printAdjList();
 
-    private:
         void createAdjList(char* hobbiesFileName); // helper function of constructor- push back the person that corresponds to each index as first entry in each vector of adjList
         void addEdge(char* edgesFileName);
         vector<vector< pair <Person, float> > > adjList;
 }; 
 
+#endif
