@@ -2,6 +2,7 @@
 #include <sstream>
 #include "GraphGenerator.hpp"
 
+GraphGenerator::GraphGenerator() {}
 
 GraphGenerator::GraphGenerator(char* edgesFileName, char* hobbiesFileName){
     createAdjList(hobbiesFileName);

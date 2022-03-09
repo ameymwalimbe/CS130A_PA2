@@ -1,9 +1,8 @@
-#ifndef PERSON_H
-#define PERSON_H
-
 #include <string>
 #include <sstream>
 #include "Person.hpp"
+
+Person::Person() {}
 
 Person::Person(string line, int i) {
     number = i;
@@ -37,4 +36,3 @@ void Person::printVec(){
     cout << endl;
 }
 
-#endif
