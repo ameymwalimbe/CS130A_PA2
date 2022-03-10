@@ -1,10 +1,12 @@
 #include "GraphOperator.hpp"
-#include <set>
+
 
 GraphOperator::GraphOperator() {};
 
 GraphOperator::GraphOperator(GraphGenerator& g) {
     graph = g; //initialize private variables
+    CreateConnectedComponents(); //fills the connected components set w/ all the connected vertices
+
 }
 
 pair<int, Person> GraphOperator::FindAverageDegree() {
@@ -38,7 +40,25 @@ int GraphOperator::FindConnectedNumber() {
     //Find number of connected components
     //Use DFS   
 
-    int numConnect = 0;
+    // int numConnect = 0;
+    // vector<bool> visited;
+    // for (int i = 0; i < graph.adjList.size(); i++){ //Initialize bool vector of visited nodes to be false
+    //     visited.push_back(false); 
+    // } 
+    // for (int i = 0; i < graph.adjList.size(); i++){
+    //     if (visited[i] == false){
+    //         DFS(i, visited);
+    //         numConnect++;
+
+    //     }
+    // }
+
+    // return numConnect;
+    return connectedComponents.size();
+
+}
+
+void GraphOperator::CreateConnectedComponents(){
     vector<bool> visited;
     for (int i = 0; i < graph.adjList.size(); i++){ //Initialize bool vector of visited nodes to be false
         visited.push_back(false); 
@@ -46,19 +66,18 @@ int GraphOperator::FindConnectedNumber() {
     for (int i = 0; i < graph.adjList.size(); i++){
         if (visited[i] == false){
             DFS(i, visited);
-            numConnect++;
+            connectedComponents.push_back(comp);
+            comp.clear();
 
         }
     }
-
-    return numConnect;
-
 }
 
-void GraphOperator::DFS(int personIndex, vector<bool> visited) {
-    visited[personIndex] = true;
 
-    for (int i = 0; i < graph.adjList[personIndex].size(); i++){
+void GraphOperator::DFS(int personIndex, vector<bool> visited) {
+    visited[personIndex] = true;;
+    comp.push_back(personIndex);
+    for(int i = 0; i < graph.adjList[personIndex].size(); i++){
         int index = graph.adjList[personIndex][i].first.number;
 
         if (!visited[index]){
@@ -69,6 +88,36 @@ void GraphOperator::DFS(int personIndex, vector<bool> visited) {
 }
 
 vector<vector<int> > GraphOperator::FindConnectedParameters() {
+    vector<pair < int, int > > eccs;
+
+    for (int i = 0; i < connectedComponents.size(); i++){
+
+        for (int v = 0; v < connectedComponents[i].size(); v++){
+            int maxEcc = 0;
+            int vPerson = connectedComponents[i][v];
+            for (int c = 0; c < connectedComponents[i].size(); c++){
+                int cPerson = connectedComponents[i][c];
+                int temp = dijkstra(vPerson, cPerson);
+                if (temp > maxEcc){
+                    maxEcc = temp;
+                }
+            }
+            
+            pair<int,int> eccPair (vPerson, maxEcc);
+            eccs.push_back(eccPair);
+        }
+    }
+
+    for (int x = 0; x < eccs.size(); x++){
+
+
+    }
+
+
+}
+
+int GraphOperator::dijkstra(int vPerson, int cPerson) {
+    
 }
 
 
@@ -127,3 +176,4 @@ double GraphOperator::FindTrianglesRatio(){
     double ratio = openNum/closedNum;
     return ratio;
 }
+
