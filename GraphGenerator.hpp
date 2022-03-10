@@ -2,7 +2,7 @@
 #define GRAPHGENERATOR_H
 
 #include <vector>
-#include "Person.cpp"
+#include "Person.hpp"
 using namespace std;
 
 class GraphGenerator {

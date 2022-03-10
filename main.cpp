@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-//#include "GraphGenerator.hpp"
+#include "GraphGenerator.hpp"
 #include "GraphOperator.hpp"
 
 

@@ -2,7 +2,8 @@
 #define GRAPHOPERATOR_H
 
 #include <vector>
-#include "GraphGenerator.cpp"
+#include "GraphGenerator.hpp"
+#include "Person.hpp"
 
 using namespace std;
 class GraphOperator{
