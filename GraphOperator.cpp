@@ -90,34 +90,89 @@ void GraphOperator::DFS(int personIndex, vector<bool> visited) {
 vector<vector<int> > GraphOperator::FindConnectedParameters() {
     vector<pair < int, int > > eccs;
 
-    for (int i = 0; i < connectedComponents.size(); i++){
+    for (int i = 0; i < connectedComponents.size(); i++){ //Iterating through the outer loop of connected Components
 
-        for (int v = 0; v < connectedComponents[i].size(); v++){
+        for (int v = 0; v < connectedComponents[i].size(); v++){ //Iterating through a s
             int maxEcc = 0;
             int vPerson = connectedComponents[i][v];
-            for (int c = 0; c < connectedComponents[i].size(); c++){
-                int cPerson = connectedComponents[i][c];
-                int temp = dijkstra(vPerson, cPerson);
-                if (temp > maxEcc){
-                    maxEcc = temp;
-                }
+            unordered_map<int, int> temp = dijkstra(vPerson);
+            
+
+            if (temp > maxEcc){
+                maxEcc = temp;
             }
+        }
             
             pair<int,int> eccPair (vPerson, maxEcc);
             eccs.push_back(eccPair);
         }
     }
 
-    for (int x = 0; x < eccs.size(); x++){
 
 
+vector<int> GraphOperator::dijkstra(int vPerson) {
+    vector<int> returnVector;
+
+    // returns shortest distance between the 2 people
+    vector<int> tempConnectedComponents;
+    vector<int> ;
+    for (int i = 0; i < connectedComponents.size(); i++) {
+        for (int j = 0; j < connectedComponents[i].size(); j++) {
+            if (vPerson == connectedComponents[i][j]) {
+                for (int k = 0; k < connectedComponents[i].size(); k++)
+                    tempConnectedComponents.push_back(connectedComponents[i][k]);
+            }
+            break; //put the relevant connected components into tempConnected
+        } 
     }
-
-
-}
-
-int GraphOperator::dijkstra(int vPerson, int cPerson) {
+    //hashtable with all vertex: distance 
+    unordered_map<int, int> distances;
+    for (int i = 0; i < tempConnectedComponents.size(); i++) {
+        int personIndex = tempConnectedComponents[i];
+        if (personIndex != vPerson) {
+            distances[personIndex] = 9999999;
+        }
+        else{
+            distances[personIndex] = 0;
+        }
+    }
     
+    vector<int> tempConnectedComponentsCopy  = tempConnectedComponents;
+    //run dijkstras
+    set<int> Visited;
+
+    //while (tempConnectedComponents.size() > 0){
+    while (tempConnectedComponents.size() >0){
+    
+        int minDistance = 99999;
+        int minPersonIndex = -1;
+ 
+        for (int i = 0; i < tempConnectedComponents.size(); i++){ // This for loop finds the minimum distance node 
+            if (distances[tempConnectedComponents[i]] < minDistance){
+                minDistance = distances[tempConnectedComponents[i]];
+                tempConnectedComponents[i] = -1;
+                minPersonIndex = tempConnectedComponents[i];
+            }
+        }
+        
+        Visited.insert(minPersonIndex); //insert min Distance Node into the Visited set
+        for (int v = 1; v < graph.adjList[minPersonIndex].size(); v++){ //going thru the min Distance Node's adjList
+            int vertex = graph.adjList[minPersonIndex][v].first.number; // vertex set to the neighbor
+            int vertexWeight = graph.adjList[minPersonIndex][v].second;
+            if (distances[vertex] > distances[minPersonIndex] + vertexWeight){
+                distances[vertex] = distances[minPersonIndex] + vertexWeight;
+                tempConnectedComponents.pop(minPersonIndex);
+                
+            }
+        }
+
+        for (int j = 0; j < tempConnectedComponentsCopy.size(); j++){
+            returnVector.push_back(distances[tempConnectedComponents[j]]);
+        }
+        
+    }
+   
+    return returnVector;  
 }
 
 
