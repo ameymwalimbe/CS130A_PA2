@@ -1,5 +1,5 @@
 #include "GraphOperator.hpp"
-#include <iostream>
+
 
 
 GraphOperator::GraphOperator() {};
@@ -68,13 +68,13 @@ void GraphOperator::CreateConnectedComponents(){
     for (int i = 0; i < graph.adjList.size(); i++){
         if (visited[i] == false){
             DFS(i, visited);
-            cout << "DID DFS" << endl;
+            //cout << "DID DFS" << endl;
 
             connectedComponents.push_back(comp);
-            for (int j = 0; j < comp.size(); j++){
-                cout << comp[j] << endl;
-            }
-            cout << "-----------------" << endl;
+            // for (int j = 0; j < comp.size(); j++){
+            //     cout << comp[j] << endl;
+            // }
+            //cout << "-----------------" << endl;
             comp.clear();
 
         }
@@ -101,23 +101,23 @@ void GraphOperator::DFS(int personIndex, vector<bool> & visited) {
     
 }
 
-vector<vector<int> > GraphOperator::FindConnectedParameters() { //TO DO
-    vector<vector<int> > connectedParameters;
+vector<vector<float> > GraphOperator::FindConnectedParameters() { //TO DO
+    vector<vector<float> > connectedParameters;
 
     for (int i = 0; i < connectedComponents.size(); i++){ //Iterating through the outer loop of connected Components
-        vector<pair< int, int > > allEccs; 
-        int diameter = -1;
-        int radius = 99999;
+        vector<pair< float, int > > allEccs; 
+        float diameter = 0;
+        float radius = 99999;
         int center = -1;
         for (int v = 0; v < connectedComponents[i].size(); v++){ //Iterating through individual comp
             int vPerson = connectedComponents[i][v];
-            vector <int> shortestPath = dijkstra(vPerson, connectedComponents[i]); //shortest paths from source v to rest of components
-            for (int c = 0; c < shortestPath.size(); c++){
-                cout << shortestPath[c] << " ";
-            }
-            cout << endl;
-            int ecc = *max_element(shortestPath.begin(), shortestPath.end()); //find eccentricity for each vertex in one connected component
-            pair <int, int> eccPair (ecc, vPerson); //create pair to match eccentricity with corresponding vertex
+            vector <float> shortestPath = dijkstra(vPerson, connectedComponents[i]); //shortest paths from source v to rest of components
+            // for (int c = 0; c < shortestPath.size(); c++){
+            //     cout << shortestPath[c] << " ";
+            // }
+            //cout << endl;
+            float ecc = float(*max_element(shortestPath.begin(), shortestPath.end())); //find eccentricity for each vertex in one connected component
+            pair <float, int> eccPair (ecc, vPerson); //create pair to match eccentricity with corresponding vertex
             allEccs.push_back(eccPair);
 
             // if (ecc > diameter){
@@ -128,7 +128,7 @@ vector<vector<int> > GraphOperator::FindConnectedParameters() { //TO DO
             // }
 
         }
-        vector<int> parameters; // for each componenent 
+        vector<float> parameters; // for each componenent 
         for (int e = 0; e < allEccs.size(); e++){
             if (allEccs[e].first > diameter){
                 diameter = allEccs[e].first; //find max Eccentricty in the vector 
@@ -142,12 +142,16 @@ vector<vector<int> > GraphOperator::FindConnectedParameters() { //TO DO
         parameters.push_back(diameter); //push diameter and radius into the parameters vector
         parameters.push_back(radius);
 
-        // find centers by mathcing ecc to radius of all vertices in componenet
+        // find centers by matching ecc to radius of all vertices in componenet
         for (int e = 0; e < allEccs.size(); e++){
-            if (allEccs[e].first == radius){
+            if (std::abs(allEccs[e].first-radius) < 0.001) {
                 center = allEccs[e].second;
                 parameters.push_back(center); //push each center into the parameters vector
             }
+            // if (allEccs[e].first == radius){
+            //     center = allEccs[e].second;
+            //     parameters.push_back(center); //push each center into the parameters vector
+            // }
         }
 
         connectedParameters.push_back(parameters); //push each parameter vector into the big connectedParameters vector
@@ -158,74 +162,58 @@ vector<vector<int> > GraphOperator::FindConnectedParameters() { //TO DO
 }
 
 
+vector<float> GraphOperator::dijkstra(int vPerson, vector<int> connected) {
+    vector<float> returnVector;
 
-vector<int> GraphOperator::dijkstra(int vPerson, vector<int> connected) {
-    vector<int> returnVector;
-
-    // returns shortest distance between the 2 people
-    // for (int i = 0; i < connectedComponents.size(); i++) {
-    //     for (int j = 0; j < connectedComponents[i].size(); j++) {
-    //         if (vPerson == connectedComponents[i][j]) {
-    //             for (int k = 0; k < connectedComponents[i].size(); k++)
-    //                 tempConnectedComponents.push_back(connectedComponents[i][k]);
-    //         }
-    //         break; //put the relevant connected components into tempConnected
-    //     } 
-    // }
-    //hashtable with all vertex: distance 
-
-    unordered_map<int, int> distances;
+    unordered_map<int, float> distances; // dist
     for (int i = 0; i < connected.size(); i++) {
         int personIndex = connected[i];
-        if (personIndex != vPerson) {
-            distances[personIndex] = 1119;
+        if (personIndex == vPerson) {
+            distances[vPerson] = float(0);
         }
         else{
-            distances[personIndex] = 0;
-        }
-    }
-    
-    vector<int> tempConnectedCopy = connected;
-    //run dijkstras
-    set<int> Visited;
 
-    //while (tempConnectedComponents.size() > 0){
-    while (connected.size() > 0){
+            distances[personIndex] = float(99999);
+        }
+    } //distances initialization works fine
+
+    //distances[vPerson] = 0;
     
-        int minDistance = 99999;
+    set<int> Visited;
+    while (Visited.size() != connected.size()) { //while there are still univisted nodes
+        
+        float minDistance = float(99999);
         int minPersonIndex = -1;
-        int removeIndex = -1;
- 
-        for (int i = 0; i < tempConnectedCopy.size(); i++){ // This for loop finds the minimum distance node 
-            if (distances[connected[i]] < minDistance){
+    
+        for (int i = 0; i < connected.size(); i++){ // This for loop finds the minimum distance node 
+            if ((distances[connected[i]] < minDistance) && (Visited.count(connected[i]) == 0)){
                 minDistance = distances[connected[i]];
+
                 minPersonIndex = connected[i]; 
-                removeIndex = i;
                 //at first run, we grab the source vertex (distance of 0)
             }
         }
-        connected.erase(connected.begin() + (removeIndex -1)); //remove minPerson from the "queue" (connected vector)
-        
-        Visited.insert(minPersonIndex); //insert min Distance Node into the Visited set
+
+        Visited.insert(minPersonIndex);
         for (int v = 1; v < graph.adjList[minPersonIndex-1].size(); v++){ //going thru the min Distance Node's adjList
-            int vertex = graph.adjList[minPersonIndex-1][v].first.number; // vertex set to the v's neighbor
-            int vertexWeight = graph.adjList[minPersonIndex-1][v].second;  //set vertexWeight to distance from v's neighbor
-            if (distances[vertex] > distances[minPersonIndex] + vertexWeight){
-                distances[vertex] = distances[minPersonIndex] + vertexWeight;
+            if (Visited.count(graph.adjList[minPersonIndex-1][v].first.number) == 0){ //not visited yet
+                float vertex = float(graph.adjList[minPersonIndex-1][v].first.number); // vertex set to the v's neighbor
+                float vertexWeight = float(graph.adjList[minPersonIndex-1][v].second);  //set vertexWeight to distance from v's neighbor
+                if (distances[vertex] > distances[minPersonIndex] + vertexWeight){
+                    distances[vertex] = distances[minPersonIndex] + vertexWeight;
+                }
             }
         }
 
-    
     }
-        
-    for (int j = 0; j < tempConnectedCopy.size(); j++){
-            returnVector.push_back(distances[tempConnectedCopy[j]]); //push back all the results of dijkstras into returnVector
-        }
-        
+    for (int j = 0; j < connected.size(); j++){
+            returnVector.push_back(distances[connected[j]]); //push back all the results of dijkstras into returnVector
+    }
     
-   
-    return returnVector;  
+    return returnVector;
 }
+
+
 
 
 Person GraphOperator::FindHighestInterest(int h) {
@@ -284,8 +272,47 @@ double GraphOperator::FindTrianglesRatio(){ //TO DO (Not working)
     cout << "number of closed triangles: " << closedNum << endl;
     int openNum = openSet.size();
     cout << "number of open triangles: " << openNum << endl;
-
+    //EDGE CASE
     double ratio = openNum/closedNum;
     return ratio;
 }
 
+Person GraphOperator::FindClosestNode(Person x, float t, int h) {
+    vector<int> newCC;
+    vector<bool> visited;
+    for (int i = 0; i < graph.adjList.size(); i++){ //Initialize bool vector of visited nodes to be false
+        visited.push_back(false); 
+    }
+    DFS(x.number, visited); //should fill our member variable comp w/ the connected component that Person x is apart of
+    
+    for (int i = 0; i < comp.size(); i++){
+        int personNumber = comp[i];
+        if (graph.adjList[personNumber-1][0].first.hobbies[h] >= t) {
+            newCC.push_back(personNumber); //newCC now contains only the people (number) that have at least an interest of t on hobby h
+        }
+    }
+
+    vector<float> distances = dijkstra(x.number, newCC);
+    unordered_map<float, Person> d; 
+    for (int i = 0; i < newCC.size(); i++){
+        int personNumber = newCC[i];
+        d[distances[i]] = graph.adjList[personNumber-1][0].first;
+    }
+
+    float minEl = 9999;
+    for (int v = 0; v <  distances.size(); v++){
+        if (distances[v] != 0){ //ignore source vertex distance
+            if (distances[v] < minEl){
+                minEl = distances[v];
+            }
+        }
+    }
+    
+    return d[minEl]; //returns minimum distance person that has interest t on h
+
+}
+
+
+pair<Person, Person> GraphOperator::FindDistanceRatio(){ // find pair of nodes whose ratio between hobby distance and graph distance is smallest
+    
+}

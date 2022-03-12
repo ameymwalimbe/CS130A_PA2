@@ -8,37 +8,37 @@
 using namespace std;
 int main(int argc, char *argv[]){
     GraphGenerator g = GraphGenerator(argv[1], argv[2]); //create graph
-    //g.printAdjList();
 
     GraphOperator o = GraphOperator(g); 
-    //cout << "here\n";
-    // int numConnect = o.FindConnectedNumber();
-    // pair<int, Person> average = o.FindAverageDegree();
-    // //double ratio = o.FindTrianglesRatio();
-    // int hobby = 3;
-    // Person myPerson = o.FindHighestInterest(hobby);
-    // cout << "person with highest interest in hobby " <<  hobby << " is " << myPerson.number << endl;
-
-    vector<vector<int> > ccv;
-    ccv = o.FindConnectedParameters();
-    // cout << "ccv.size(): " << ccv.size() << endl;
-    // for (int i = 0; i < ccv.size(); i++) {
-    //     for (int j = 0; j< ccv[i].size(); j++) {
-    //         cout << ccv[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-
     
-    //cout << "triangles ratio: " << ratio << endl;
-    
-    // cout << "average degree: " << average.first
-    //     << " Person: " << average.second.number  << endl;
+    cout << "The average degree:" << endl
+        << o.FindAverageDegree().first << endl;
 
-    // cout << "num Connected: " << numConnect << endl;
-    
+    cout << "The vertex with the highest degree:"
+        << o.FindHighestDegree().number << endl;
+
+    cout << "The number of connected components:"
+        << o.FindConnectedNumber() << endl;
+
+    cout << "The diameter, radius, and center(s) of each componenet:\n";
+
+    vector<vector<float > > params = o.FindConnectedParameters(); 
+    for (int i = 0; i < params.size(); i++) {
+        for (int j = 0; j < params[i].size(); j++) {
+            cout << params[i][j];
+        }
+        cout << endl;
+    }
 
 
+    cout << "The ratio between the number of open and closed triangles:" << endl; //TODO
+
+
+    cout << "The closest node:" << endl 
+        << o.FindClosestNode(o.graph.adjList[38][0].first, float(0.5), 7).number << endl;
+
+    cout << "The pair of nodes x and y:" << endl; //TODO
+        
 
     return 0;
 }
