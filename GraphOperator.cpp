@@ -278,19 +278,22 @@ double GraphOperator::FindTrianglesRatio(){ //TO DO (Not working)
 }
 
 Person GraphOperator::FindClosestNode(Person x, float t, int h) {
+    comp.clear();
     vector<int> newCC;
     vector<bool> visited;
     for (int i = 0; i < graph.adjList.size(); i++){ //Initialize bool vector of visited nodes to be false
         visited.push_back(false); 
     }
+    cout << "created visited" << endl;
     DFS(x.number, visited); //should fill our member variable comp w/ the connected component that Person x is apart of
-    
+    cout << "ran DFS" << endl;
     for (int i = 0; i < comp.size(); i++){
         int personNumber = comp[i];
         if (graph.adjList[personNumber-1][0].first.hobbies[h] >= t) {
             newCC.push_back(personNumber); //newCC now contains only the people (number) that have at least an interest of t on hobby h
         }
     }
+    cout << "new CC done" << endl;
 
     vector<float> distances = dijkstra(x.number, newCC);
     unordered_map<float, Person> d; 
@@ -298,6 +301,8 @@ Person GraphOperator::FindClosestNode(Person x, float t, int h) {
         int personNumber = newCC[i];
         d[distances[i]] = graph.adjList[personNumber-1][0].first;
     }
+
+    cout << "made dictionary" << endl;
 
     float minEl = 9999;
     for (int v = 0; v <  distances.size(); v++){
@@ -307,6 +312,7 @@ Person GraphOperator::FindClosestNode(Person x, float t, int h) {
             }
         }
     }
+    cout << "did minEl" << endl;
     
     return d[minEl]; //returns minimum distance person that has interest t on h
 
