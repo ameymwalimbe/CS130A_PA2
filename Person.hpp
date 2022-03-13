@@ -9,6 +9,7 @@ class Person{
     public:
         Person();
         Person(string line, int i); //constructs a person vertex and fills in their hobby vector
+        //bool operator==(const Person& p);
         void printVec();
     //private:   
         vector<float> hobbies;

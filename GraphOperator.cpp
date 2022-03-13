@@ -1,4 +1,5 @@
 #include "GraphOperator.hpp"
+#include <unordered_map>
 
 
 
@@ -10,51 +11,40 @@ GraphOperator::GraphOperator(GraphGenerator& g) {
 
 }
 
-pair<int, Person> GraphOperator::FindAverageDegree() {
+pair<float, vector<Person> > GraphOperator::FindAverageDegree() {
     //Find average degree and the vertex with the highest degree
-    int sum = 0;
+    float sum = 0;
     for (int i = 0; i < graph.adjList.size(); i++) {
         sum += (graph.adjList[i].size()-1);
     }
-    int avg = sum / (graph.adjList.size());
-    Person maxPerson = FindHighestDegree();
-    pair <int, Person> returnPair (avg, maxPerson);
+    float avg = sum / (graph.adjList.size()); 
+    vector<Person> maxPerson = FindHighestDegree();
+    pair <float, vector<Person> > returnPair (avg, maxPerson);
 
-    return returnPair;
+    return returnPair; 
 }
 
-Person GraphOperator::FindHighestDegree() {
+vector<Person> GraphOperator::FindHighestDegree() {
 //Find vertex(person) of highest degree(most connections)
+    vector<Person> maxDegrees;
     int max = 0;
-    Person maxPerson;
+
 
     for (int i = 0; i < graph.adjList.size(); i++) {
         if (graph.adjList[i].size() >= max) {
             max = graph.adjList[i].size();
-            maxPerson = graph.adjList[i][0].first; //What if theres multiple ppl with max degrees?
+            
         }
     }
-    return maxPerson;
+    for (int v = 0; v < graph.adjList.size(); v++){
+        if (graph.adjList[v].size() == max){
+            maxDegrees.push_back(graph.adjList[v][0].first);
+        }
+    }
+    return maxDegrees;
 }
 
 int GraphOperator::FindConnectedNumber() {
-    //Find number of connected components
-    //Use DFS   
-
-    // int numConnect = 0;
-    // vector<bool> visited;
-    // for (int i = 0; i < graph.adjList.size(); i++){ //Initialize bool vector of visited nodes to be false
-    //     visited.push_back(false); 
-    // } 
-    // for (int i = 0; i < graph.adjList.size(); i++){
-    //     if (visited[i] == false){
-    //         DFS(i, visited);
-    //         numConnect++;
-
-    //     }
-    // }
-
-    // return numConnect;
     return connectedComponents.size();
 
 }
@@ -64,17 +54,14 @@ void GraphOperator::CreateConnectedComponents(){
     for (int i = 0; i < graph.adjList.size(); i++){ //Initialize bool vector of visited nodes to be false
         visited.push_back(false); 
     } 
-    //cout << "created visited array" << endl;
+  
     for (int i = 0; i < graph.adjList.size(); i++){
         if (visited[i] == false){
             DFS(i, visited);
-            //cout << "DID DFS" << endl;
+            
 
             connectedComponents.push_back(comp);
-            // for (int j = 0; j < comp.size(); j++){
-            //     cout << comp[j] << endl;
-            // }
-            //cout << "-----------------" << endl;
+
             comp.clear();
 
         }
@@ -89,19 +76,19 @@ void GraphOperator::DFS(int personIndex, vector<bool> & visited) {
     // cout << "line 88\n";
     // cout <<  "size of graph.adjList[personIndex].size(): " << graph.adjList[personIndex].size() << endl;
     for(int i = 0; i < graph.adjList[personIndex].size(); i++){
-        //cout << "line 90\n";
+
         int index = graph.adjList[personIndex][i].first.number - 1;
-        //cout << "line 92\n";
+      
         if (!visited[index]){
-            //cout << "line 94\n";
+        
             DFS(index, visited);
-            //cout << "line 96\n";
+       
         }
     }
     
 }
 
-vector<vector<float> > GraphOperator::FindConnectedParameters() { //TO DO
+vector<vector<float> > GraphOperator::FindConnectedParameters() { 
     vector<vector<float> > connectedParameters;
 
     for (int i = 0; i < connectedComponents.size(); i++){ //Iterating through the outer loop of connected Components
@@ -112,20 +99,10 @@ vector<vector<float> > GraphOperator::FindConnectedParameters() { //TO DO
         for (int v = 0; v < connectedComponents[i].size(); v++){ //Iterating through individual comp
             int vPerson = connectedComponents[i][v];
             vector <float> shortestPath = dijkstra(vPerson, connectedComponents[i]); //shortest paths from source v to rest of components
-            // for (int c = 0; c < shortestPath.size(); c++){
-            //     cout << shortestPath[c] << " ";
-            // }
-            //cout << endl;
+   
             float ecc = float(*max_element(shortestPath.begin(), shortestPath.end())); //find eccentricity for each vertex in one connected component
             pair <float, int> eccPair (ecc, vPerson); //create pair to match eccentricity with corresponding vertex
             allEccs.push_back(eccPair);
-
-            // if (ecc > diameter){
-            //     diameter = ecc;
-            // }
-            // if (ecc < radius){
-            //     radius = ecc;
-            // }
 
         }
         vector<float> parameters; // for each componenent 
@@ -148,10 +125,6 @@ vector<vector<float> > GraphOperator::FindConnectedParameters() { //TO DO
                 center = allEccs[e].second;
                 parameters.push_back(center); //push each center into the parameters vector
             }
-            // if (allEccs[e].first == radius){
-            //     center = allEccs[e].second;
-            //     parameters.push_back(center); //push each center into the parameters vector
-            // }
         }
 
         connectedParameters.push_back(parameters); //push each parameter vector into the big connectedParameters vector
@@ -165,11 +138,14 @@ vector<vector<float> > GraphOperator::FindConnectedParameters() { //TO DO
 vector<float> GraphOperator::dijkstra(int vPerson, vector<int> connected) {
     vector<float> returnVector;
 
+
     unordered_map<int, float> distances; // dist
     for (int i = 0; i < connected.size(); i++) {
+        //cout << "line 148\n";
         int personIndex = connected[i];
         if (personIndex == vPerson) {
             distances[vPerson] = float(0);
+            //cout << "yes " << endl;
         }
         else{
 
@@ -177,23 +153,23 @@ vector<float> GraphOperator::dijkstra(int vPerson, vector<int> connected) {
         }
     } //distances initialization works fine
 
-    //distances[vPerson] = 0;
     
     set<int> Visited;
     while (Visited.size() != connected.size()) { //while there are still univisted nodes
-        
+
         float minDistance = float(99999);
         int minPersonIndex = -1;
-    
         for (int i = 0; i < connected.size(); i++){ // This for loop finds the minimum distance node 
+            //cout << Visited.count(connected[i]) << endl;
             if ((distances[connected[i]] < minDistance) && (Visited.count(connected[i]) == 0)){
+                
                 minDistance = distances[connected[i]];
 
                 minPersonIndex = connected[i]; 
                 //at first run, we grab the source vertex (distance of 0)
             }
         }
-
+        //cout << "minPersonIndex: " << minPersonIndex << endl;
         Visited.insert(minPersonIndex);
         for (int v = 1; v < graph.adjList[minPersonIndex-1].size(); v++){ //going thru the min Distance Node's adjList
             if (Visited.count(graph.adjList[minPersonIndex-1][v].first.number) == 0){ //not visited yet
@@ -220,105 +196,170 @@ Person GraphOperator::FindHighestInterest(int h) {
     float maxInterest = 0;
     Person maxPerson;
     for (int i = 0; i < graph.adjList.size(); i++) {
-        if (graph.adjList[i][0].first.hobbies[h] >= maxInterest) {
-            maxInterest = graph.adjList[i][0].first.hobbies[h];
+        if (graph.adjList[i][0].first.hobbies[h-1] > maxInterest) {
+            maxInterest = graph.adjList[i][0].first.hobbies[h-1];
             maxPerson = graph.adjList[i][0].first;
         }
     }
     return maxPerson;
 }
+bool GraphOperator::isEdge(int v1, int v2){
+    for (int i = 1; i < graph.adjList[v1-1].size(); i++){
+        if (graph.adjList[v1-1][i].first.number == v2){
+            return true;
+        }
+    }
+    return false;
+}
+double GraphOperator::FindTrianglesRatio(){ 
+    //Iterate thru nodes from the adjList
+        //Go through node's neighbors (select 2)
+            //go through one of the neighbor's adjList, check if the second node exists 
+                //if yes --> increment closed by one
+                //if no --> increment open by one
 
-double GraphOperator::FindTrianglesRatio(){ //TO DO (Not working)
-    int countClosed = 0;
-    int countOpen = 0;
+    float closedCount = 0;
+    float openCount= 0;
+    for (int i = 0; i < graph.adjList.size(); i++){
 
-    set<set<int> > closedSet;
-    set<set<int> > openSet;
-    
-    for (int v = 0; v < graph.adjList.size(); v++){
-        for (int i = 1; i < graph.adjList[v].size(); i++){
-            int index = graph.adjList[v][i].first.number;
-            for (int j = 1; j < graph.adjList[index].size(); j++){
-                int jIndex = graph.adjList[index][j].first.number;
-                for (int k = 1; k < graph.adjList[jIndex].size(); k++){
-                    int vIndex = graph.adjList[v][0].first.number;
-                    if (graph.adjList[jIndex][k].first.number == graph.adjList[v][0].first.number){
-                        
-                        set<int> closedTriple;
-                        closedTriple.insert(index);
-                        cout << index << endl;
-                        closedTriple.insert(jIndex);
-                        cout << jIndex << endl; 
-                        closedTriple.insert(vIndex);
-                        cout << vIndex << endl;
-                        closedSet.insert(closedTriple); //inserted the closedTriangle verts into the set
-                        
+       
+        for (int c = 1; c < graph.adjList[i].size(); c++){ //neighbor1
+      
+            for (int j = c+1; j < graph.adjList[i].size(); j++){ //neighbor2
+
+                    if (isEdge(graph.adjList[i][c].first.number, graph.adjList[i][j].first.number)){
+                        closedCount++;
                     }
                     else{
-                        //countOpen++;
-                        set<int> openTriple;
-                        openTriple.insert(index);
-                        openTriple.insert(jIndex); 
-                        openTriple.insert(vIndex);
-                        closedSet.insert(openTriple); //inserted the closedTriangle verts into the set
+                        openCount++;
                     }
-                }
+         
+                
             }
         }
     }
 
-
-    int closedNum = closedSet.size();
-    cout << "number of closed triangles: " << closedNum << endl;
-    int openNum = openSet.size();
-    cout << "number of open triangles: " << openNum << endl;
-    //EDGE CASE
-    double ratio = openNum/closedNum;
-    return ratio;
+    float returnVal = 3*(openCount/closedCount); 
+    return returnVal;
 }
 
+            
+
+    
+
 Person GraphOperator::FindClosestNode(Person x, float t, int h) {
+ 
     comp.clear();
     vector<int> newCC;
     vector<bool> visited;
+    vector<Person> results;
     for (int i = 0; i < graph.adjList.size(); i++){ //Initialize bool vector of visited nodes to be false
         visited.push_back(false); 
+ 
     }
-    cout << "created visited" << endl;
-    DFS(x.number, visited); //should fill our member variable comp w/ the connected component that Person x is apart of
-    cout << "ran DFS" << endl;
+    
+    DFS(x.number-1, visited); //should fill our member variable comp w/ the connected component that Person x is apart of
+
+    if (graph.adjList[x.number-1][0].first.hobbies[h-1] < t){//person x doesnt meet the requirements, needs to be manually entered into newCC
+    
+        newCC.push_back(x.number);
+    } 
+
+    if (graph.adjList[x.number-1][0].first.hobbies[h-1] >= t){ //Person x does meet the requirements
+        results.push_back(x);
+    }
+
     for (int i = 0; i < comp.size(); i++){
         int personNumber = comp[i];
-        if (graph.adjList[personNumber-1][0].first.hobbies[h] >= t) {
+        if (graph.adjList[personNumber-1][0].first.hobbies[h-1] >= t) {
             newCC.push_back(personNumber); //newCC now contains only the people (number) that have at least an interest of t on hobby h
         }
     }
-    cout << "new CC done" << endl;
 
     vector<float> distances = dijkstra(x.number, newCC);
-    unordered_map<float, Person> d; 
-    for (int i = 0; i < newCC.size(); i++){
+
+
+
+    vector<pair<Person, float> > d;
+
+    for (int i = 0; i < newCC.size(); i++){;
         int personNumber = newCC[i];
-        d[distances[i]] = graph.adjList[personNumber-1][0].first;
+        //d[distances[i]] = graph.adjList[personNumber-1][0].first;
+        //d[graph.adjList[personNumber-1][0].first] = distances[i];
+        pair<Person, float> distPair(graph.adjList[personNumber-1][0].first, distances[i]);
+        d.push_back(distPair);
     }
 
-    cout << "made dictionary" << endl;
-
-    float minEl = 9999;
-    for (int v = 0; v <  distances.size(); v++){
-        if (distances[v] != 0){ //ignore source vertex distance
-            if (distances[v] < minEl){
-                minEl = distances[v];
-            }
+    float minDist = 9999;
+    int minPerson = -1;
+    for (int i = 0; i < d.size(); i++) {
+        float curDist = d[i].second; 
+        if ((curDist < minDist) && (d[i].first.number != x.number)) {
+            minDist = curDist;
+            minPerson = d[i].first.number;
         }
     }
-    cout << "did minEl" << endl;
-    
-    return d[minEl]; //returns minimum distance person that has interest t on h
+    results.push_back(graph.adjList[minPerson-1][0].first);
+    int min = 9999;
+    for (int p = 0; p < results.size(); p++){
+        if (results[p].number < min){
+            min = results[p].number;
+        }
+    }
+    return graph.adjList[min-1][0].first;
+
 
 }
 
 
 pair<Person, Person> GraphOperator::FindDistanceRatio(){ // find pair of nodes whose ratio between hobby distance and graph distance is smallest
-    
+    //minRatio = INF
+    //iterate thru our CONNECTED COMPONENTS
+        //iterate thru our individual components
+            //run dijkstras --> distances from source vertex
+            //iterate through the same individual components again
+                // calculate the hobby distance between source vertex and another vertex
+                //calculate distance ratio for that source vertex and other vertex
+                // if currRatio < minRatio, update minRatio
+
+    pair<Person, Person> returnPair(graph.adjList[0][0].first, graph.adjList[0][0].first);
+    float minRatio = 9999; 
+    for (int i = 0; i < connectedComponents.size(); i++) {
+        for (int j = 0; j < connectedComponents[i].size(); j++) {
+            sort(connectedComponents[i].begin(), connectedComponents[i].end());
+            vector<float> distances = dijkstra(connectedComponents[i][j], connectedComponents[i]);
+            for (int k = j+1; k < connectedComponents[i].size(); k++) {
+ 
+                float hobbyD = CalculateHobbyDistance(connectedComponents[i][j], connectedComponents[i][k]);
+                float curDistRatio = hobbyD/distances[k];
+                // cout << "hobbyD: " << hobbyD << " | "
+                //     << "distances[k]: " << distances[k] << " | "
+                //     << "curDistRatio: " << curDistRatio 
+                //     << " components being looked at: " << connectedComponents[i][j] << " and " << connectedComponents[i][k] << endl;
+                if (curDistRatio < minRatio){
+                    returnPair.first = graph.adjList[connectedComponents[i][j]-1][0].first;
+                    returnPair.second = graph.adjList[connectedComponents[i][k]-1][0].first;
+                    minRatio = curDistRatio;
+
+                }
+            }
+        }
+    }
+    return returnPair;
+}
+
+float GraphOperator::CalculateHobbyDistance(int v1, int v2){ //helper function for FindDistanceRatio
+    float sum = 0;
+    int hobbyLength = graph.adjList[v1-1][0].first.hobbies.size();
+    for (int i = 0; i < hobbyLength; i++) {
+        float diffSq = 0;
+        float h1 = graph.adjList[v1-1][0].first.hobbies[i];
+        float h2 = graph.adjList[v2-1][0].first.hobbies[i];
+        diffSq = (h1 - h2) * (h1 - h2);
+        sum += diffSq;
+    }
+
+    float returnVal = sqrt(sum);
+
+    return returnVal;
 }

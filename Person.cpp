@@ -36,3 +36,11 @@ void Person::printVec(){
     cout << endl;
 }
 
+// bool Person::operator==(const Person &p) {
+//     if (this->number == p.number) {
+//         return true;
+//     }
+//     else {
+//         return false;
+//     }
+// }

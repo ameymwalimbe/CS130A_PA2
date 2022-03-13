@@ -9,6 +9,7 @@
 #include <queue>
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 using namespace std;
 
 
@@ -16,8 +17,8 @@ class GraphOperator{
     public:
         GraphOperator();
         GraphOperator(GraphGenerator& g); 
-        pair<int, Person> FindAverageDegree(); //Find average degree and the vertex with the highest degree
-        Person FindHighestDegree(); //Find vertex(person) of highest degree(most connections)
+        pair<float, vector<Person> >FindAverageDegree(); //Find average degree and the vertex with the highest degree
+        vector<Person> FindHighestDegree(); //Find vertex(person) of highest degree(most connections)
         int FindConnectedNumber(); //Find number of connected components
         void DFS(int personIndex, vector<bool> &visited); // helper function for FindConnectedNumber()
         vector<vector<float> > FindConnectedParameters(); //Find Diameter, Radius, Centers of each component
@@ -29,7 +30,9 @@ class GraphOperator{
 
         GraphGenerator graph;
     private:
+        bool isEdge(int v1, int v2);
         void CreateConnectedComponents();
+        float CalculateHobbyDistance(int v1, int v2);
         //GraphGenerator graph;
         vector<vector<int> > connectedComponents;
         vector<int > comp;
