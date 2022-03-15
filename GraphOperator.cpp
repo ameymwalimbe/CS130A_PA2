@@ -59,7 +59,6 @@ void GraphOperator::CreateConnectedComponents(){
         if (visited[i] == false){
             DFS(i, visited);
             
-
             connectedComponents.push_back(comp);
 
             comp.clear();
